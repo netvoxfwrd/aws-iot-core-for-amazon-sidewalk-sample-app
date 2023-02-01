@@ -801,11 +801,19 @@ Resources:
         - - sensor-monitoring-app
           - !Select [2, !Split [/, !Ref AWS::StackId ]]
       AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: TRUE
+        BlockPublicPolicy: TRUE
+        IgnorePublicAcls: TRUE
+        RestrictPublicBuckets: TRUE
     DeletionPolicy: Delete
 
   # Bucket policy to allow communication with cloudFront
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
+    DependsOn:
+      - SidewalkWebAppBucket
+      - CloudFrontDistribution
     Properties:
       Bucket:
         Ref: SidewalkWebAppBucket
@@ -821,14 +829,31 @@ Resources:
                 - - !GetAtt SidewalkWebAppBucket.Arn
                   - /*
             Principal:
-              CanonicalUser:
-                Fn::GetAtt:
-                  - CloudFrontOriginAccessIdentity
-                  - S3CanonicalUserId
+              Service:
+                cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn:
+                  Fn::Join:
+                    - '/'
+                    - - !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution
+                      - !Ref CloudFrontDistribution
+
 
   # ------------------------------
   # Cloud Front related resources
   # ------------------------------
+
+  # Cloud Front Origin Access Control
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: SidewalkSampleApplication OAC to s3 bucket
+        Name: SidewalkSampleApplicationOAC
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   # Cloud Front distribution. Hosts S3 bucket
   CloudFrontDistribution:
@@ -836,6 +861,7 @@ Resources:
     DependsOn:
       - SidewalkWebAppBucket
       - SidewalkApiGateway
+      - CloudFrontOAC
     Properties:
       DistributionConfig:
         DefaultCacheBehavior:
@@ -854,12 +880,11 @@ Resources:
           - DomainName: !GetAtt SidewalkWebAppBucket.DomainName
             Id:
               Fn::Sub: ${AWS::StackName}-root
+            OriginAccessControlId:
+              !Ref CloudFrontOAC
             S3OriginConfig:
               OriginAccessIdentity:
-                Fn::Join:
-                  - ''
-                  - - origin-access-identity/cloudfront/
-                    - Ref: CloudFrontOriginAccessIdentity
+                 "" # empty access identity allows use of OAC
           - DomainName:
               Fn::Join:
                 - '.'
@@ -908,15 +933,6 @@ Resources:
             CachePolicyId:
               4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Caching disabled
         PriceClass: PriceClass_All
-
-  # OriginAccessIdentity to allow communication with 3
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment:
-          Fn::Sub: CloudFront OAI for SidewalkSampleApp
-
 
 Outputs:
 
