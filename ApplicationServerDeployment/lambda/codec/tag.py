@@ -214,6 +214,15 @@ class Tag:
             'sensor_data': int(self.val, 2)
         }
 
+    def _decode_custom_data(self):
+        """
+        Decodes CUSTOM_DATA tags and turns it into a human-readable dict.
+        :return: Dict representing custom data.
+        """
+        return {
+            'custom_data': self.val
+        }
+
     DECODERS_MAP = {
         TagType.BUTTON_PRESS: _decode_button_press,
         TagType.CURRENT_GPS_TIME_IN_SECS: _decode_current_gps_time_in_secs,
@@ -224,7 +233,8 @@ class Tag:
         TagType.NUMBER_OF_BUTTONS: _decode_number_of_buttons,
         TagType.NUMBER_OF_LEDS: _decode_number_of_leds,
         TagType.TEMP_SENSOR_AVAILABLE_AND_UNIT_REPRESENTATION: _decode_temp_sensor_available_and_unit_representation,
-        TagType.TEMP_SENSOR_DATA: _decode_temp_sensor_data
+        TagType.TEMP_SENSOR_DATA: _decode_temp_sensor_data,
+        TagType.CUSTOM_DATA: _decode_custom_data
     }
 
     # -------------
@@ -262,9 +272,17 @@ class Tag:
         current_gps_time = self.json[TagType.CURRENT_GPS_TIME_IN_SECS]
         return format(current_gps_time, '032b')
 
+    def _encode_custom_data(self):
+        """
+        Encodes CUSTOM_DATA tags value based on json dict
+        """
+        data = self.json[TagType.CUSTOM_DATA]
+        return ''.join([format(idx, '08b') for idx in data])
+
     ENCODERS_MAP = {
         TagType.BUTTON_PRESSED_RESP: _encode_button_pressed_resp,
         TagType.LED_ON: _encode_led_on,
         TagType.LED_OFF: _encode_led_off,
-        TagType.CURRENT_GPS_TIME_IN_SECS: _encode_current_gps_time_in_secs
+        TagType.CURRENT_GPS_TIME_IN_SECS: _encode_current_gps_time_in_secs,
+        TagType.CUSTOM_DATA: _encode_custom_data,
     }

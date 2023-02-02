@@ -138,7 +138,7 @@ def lambda_handler(event, context):
                 status_hdr_ind=True,
                 op_code=OpCode.MSG_TYPE_RESP,
                 cls=Class.DEMO_APP_CLASS,
-                id=Id.DEMO_APP_CAP_DISCOVERY_RESP,
+                id=NormalId.DEMO_APP_CAP_DISCOVERY_RESP,
                 status_code=status_code
             )
             msg_id = send_hex_payload_to_device(device_id, cmd, seq_n)
@@ -157,7 +157,7 @@ def lambda_handler(event, context):
                 status_hdr_ind=True,
                 op_code=OpCode.MSG_TYPE_RESP,
                 cls=Class.DEMO_APP_CLASS,
-                id=Id.DEMO_APP_ACTION_RESP,
+                id=NormalId.DEMO_APP_ACTION_RESP,
                 status_code='00000000',
                 payload=tags
             )
@@ -202,7 +202,7 @@ def lambda_handler(event, context):
                 status_hdr_ind=False,
                 op_code=OpCode.MSG_TYPE_WRITE,
                 cls=Class.DEMO_APP_CLASS,
-                id=Id.DEMO_APP_ACTION_REQ,
+                id=NormalId.DEMO_APP_ACTION_REQ,
                 payload=tags
             )
             msg_id = send_hex_payload_to_device(device_id, cmd, seq_n)

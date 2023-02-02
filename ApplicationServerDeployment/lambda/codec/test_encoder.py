@@ -22,7 +22,7 @@ class TestEncoder(unittest.TestCase):
                 status_hdr_ind=True,
                 op_code=OpCode.MSG_TYPE_RESP,
                 cls=True,
-                id=Id.DEMO_APP_ACTION_RESP,
+                id=NormalId.DEMO_APP_ACTION_RESP,
                 status_code='00000000',
                 payload=[]
             )
@@ -43,7 +43,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=True,
             op_code=OpCode.MSG_TYPE_RESP,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_CAP_DISCOVERY_RESP,
+            id=NormalId.DEMO_APP_CAP_DISCOVERY_RESP,
             status_code=status_code
         )
         self.assertEqual(cmd.hex_repr(), 'E000')
@@ -58,7 +58,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=True,
             op_code=OpCode.MSG_TYPE_RESP,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_RESP,
+            id=NormalId.DEMO_APP_ACTION_RESP,
             status_code='00000000',
             payload=tags
         )
@@ -71,7 +71,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=True,
             op_code=OpCode.MSG_TYPE_RESP,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_RESP,
+            id=NormalId.DEMO_APP_ACTION_RESP,
             status_code='00000000',
             payload=tags
         )
@@ -84,7 +84,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=True,
             op_code=OpCode.MSG_TYPE_RESP,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_RESP,
+            id=NormalId.DEMO_APP_ACTION_RESP,
             status_code='00000000',
             payload=tags
         )
@@ -103,7 +103,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21030187000003E8')
@@ -118,7 +118,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '2143010287000003E8')
@@ -133,7 +133,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21C30301020387000003E8')
@@ -148,7 +148,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21830102030487000003E8')
@@ -163,7 +163,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21040187000003E8')
@@ -178,7 +178,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '2144010287000003E8')
@@ -193,7 +193,7 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21C40301020387000003E8')
@@ -208,10 +208,22 @@ class TestEncoder(unittest.TestCase):
             status_hdr_ind=False,
             op_code=OpCode.MSG_TYPE_WRITE,
             cls=Class.DEMO_APP_CLASS,
-            id=Id.DEMO_APP_ACTION_REQ,
+            id=NormalId.DEMO_APP_ACTION_REQ,
             payload=tags
         )
         self.assertEqual(cmd.hex_repr(), '21840102030487000003E8')
+
+    def test_encode_custom_data(self):
+        tags_json = [{TagType.CUSTOM_DATA: [1, 2, 3, 4, 5, 6]}]
+        tags = [Tag().encode(tag) for tag in tags_json]
+        cmd = Command().encode(
+            status_hdr_ind=False,
+            op_code=OpCode.MSG_TYPE_NOTIFY,
+            cls=Class.DEMO_APP_CLASS_CUSTOM,
+            id=CustomId.DEMO_APP_CUSTOM_DATA_NOTIFICATION,
+            payload=tags
+        )
+        self.assertEqual(cmd.hex_repr(), '48CE06010203040506')
 
 
 if __name__ == '__main__':

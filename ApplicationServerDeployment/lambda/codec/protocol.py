@@ -23,6 +23,7 @@ class Class(Enum):
     Represents Command Class values.
     """
     DEMO_APP_CLASS = '00'
+    DEMO_APP_CLASS_CUSTOM = '01'
 
 
 class ClassCmdId(Enum):
@@ -31,9 +32,10 @@ class ClassCmdId(Enum):
     """
     DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID = '000'
     DEMO_APP_CLASS_CMD_ACTION = '001'
+    DEMO_APP_CUSTOM_CMD_DATA = '000'
 
 
-class Id(Enum):
+class NormalId(Enum):
     """
     Represents Command Id values.
     """
@@ -42,6 +44,12 @@ class Id(Enum):
     DEMO_APP_ACTION_REQ = '101'
     DEMO_APP_ACTION_NOTIFICATION = '110'
     DEMO_APP_ACTION_RESP = '111'
+
+
+class CustomId(Enum):
+    DEMO_APP_CUSTOM_DATA_REQ = '001'
+    DEMO_APP_CUSTOM_DATA_RESP = '011'
+    DEMO_APP_CUSTOM_DATA_NOTIFICATION = '010'
 
 
 class TagType(Enum):
@@ -61,6 +69,7 @@ class TagType(Enum):
     TEMP_SENSOR_AVAILABLE_AND_UNIT_REPRESENTATION = '001011'
     LINK_TYPE = '001100'
     BUTTON_PRESSED_RESP = '001101'
+    CUSTOM_DATA = '001110'
 
 
 class TlvFormat(Enum):
@@ -93,10 +102,33 @@ class SensorUnits(Enum):
 """
 Maps Class Cmd Ids to Id subsets.
 """
-IdToCmdIdValueMap = {
-    Id.DEMO_APP_CAP_DISCOVERY_NOTIFICATION: ClassCmdId.DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID.value,
-    Id.DEMO_APP_CAP_DISCOVERY_RESP: ClassCmdId.DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID.value,
-    Id.DEMO_APP_ACTION_REQ: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value,
-    Id.DEMO_APP_ACTION_RESP: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value,
-    Id.DEMO_APP_ACTION_NOTIFICATION: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value
+DefaultIdToCmdIdValueMap = {
+    NormalId.DEMO_APP_CAP_DISCOVERY_NOTIFICATION: ClassCmdId.DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID.value,
+    NormalId.DEMO_APP_CAP_DISCOVERY_RESP: ClassCmdId.DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID.value,
+    NormalId.DEMO_APP_ACTION_REQ: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value,
+    NormalId.DEMO_APP_ACTION_RESP: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value,
+    NormalId.DEMO_APP_ACTION_NOTIFICATION: ClassCmdId.DEMO_APP_CLASS_CMD_ACTION.value,
 }
+
+CustomIdToCmdIdValueMap = {
+    CustomId.DEMO_APP_CUSTOM_DATA_REQ: ClassCmdId.DEMO_APP_CUSTOM_CMD_DATA.value,
+    CustomId.DEMO_APP_CUSTOM_DATA_RESP: ClassCmdId.DEMO_APP_CUSTOM_CMD_DATA.value,
+    CustomId.DEMO_APP_CUSTOM_DATA_NOTIFICATION: ClassCmdId.DEMO_APP_CUSTOM_CMD_DATA.value,
+}
+
+ClassToIdValueMap = {
+    Class.DEMO_APP_CLASS: DefaultIdToCmdIdValueMap,
+    Class.DEMO_APP_CLASS_CUSTOM: CustomIdToCmdIdValueMap,
+}
+
+ClassValueToIdValueMap = {
+    Class.DEMO_APP_CLASS.value: DefaultIdToCmdIdValueMap,
+    Class.DEMO_APP_CLASS_CUSTOM.value: CustomIdToCmdIdValueMap,
+}
+
+ClassToIdMap = {
+    Class.DEMO_APP_CLASS.value: NormalId,
+    Class.DEMO_APP_CLASS_CUSTOM.value: CustomId,
+}
+
+

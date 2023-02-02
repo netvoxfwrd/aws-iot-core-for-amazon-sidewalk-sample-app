@@ -150,6 +150,7 @@ class TestDecoder(unittest.TestCase):
         self.assertEqual(decoded['dl_latency'], 1000)
         self.assertEqual(decoded['link_type'], 'BLE')
 
+
     # -----------------------------------------
     # Decode DEMO_APP_ACTION_NOTIFICATION  msg
     # -----------------------------------------
@@ -232,6 +233,16 @@ class TestDecoder(unittest.TestCase):
         self.assertEqual(decoded['sensor_data'], 16909060)
         self.assertEqual(decoded['gps_time'], 1)
         self.assertEqual(decoded['link_type'], 'BLE')
+
+    def test_decode_custom_Data(self):
+        cmd = Command().decode("48CE06010203040506")
+        cmd_json = json.loads(cmd.__str__())
+        self.assertEqual(cmd_json['class'], 'DEMO_APP_CLASS_CUSTOM')
+        self.assertEqual(cmd_json['id'], 'DEMO_APP_CUSTOM_DATA_NOTIFICATION')
+        self.assertEqual(cmd_json['op-code'], 'MSG_TYPE_NOTIFY')
+
+        decoded = cmd_json['decoded']
+        self.assertEqual(decoded['custom_data'], '000000010000001000000011000001000000010100000110')
 
 
 if __name__ == '__main__':

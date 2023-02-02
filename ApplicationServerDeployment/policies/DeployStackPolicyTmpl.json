@@ -214,6 +214,7 @@
             "Resource": [
                 "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream",
                 "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream/*",
+                "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream/table/CustomData",
                 "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream/table/Notifications",
                 "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream/table/Measurements",
                 "arn:aws:timestream:*:<account_ID>:database/SidewalkTimestream/table/UplinkMessages"

@@ -75,11 +75,12 @@ class Command:
 
         # create human-readable dict
         self.decoded_cmd = self.combine_tags(self.payload)
-        self.decoded_cmd['id'] = Id(self.id).name
+        self.decoded_cmd['cls'] = Class(self.cls).name
+        self.decoded_cmd['id'] = ClassToIdMap[self.cls](self.id).name
 
         return self
 
-    def encode(self, status_hdr_ind: bool, op_code: OpCode, cls: Class, id: Id, status_code: str = '', payload: [Tag] = None):
+    def encode(self, status_hdr_ind: bool, op_code: OpCode, cls: Class, id: Enum, status_code: str = '', payload: [Tag] = None):
         """
         Encodes arguments into byte_stream.
 
@@ -100,7 +101,8 @@ class Command:
         self.payload = payload
         self.raw_payload = ''.join([tag.bin_repr() for tag in payload])
         self.decoded_cmd = self.combine_tags(self.payload)
-        self.decoded_cmd['id'] = Id(self.id).name
+        self.decoded_cmd['cls'] = Class(self.cls).name
+        self.decoded_cmd['id'] = ClassToIdMap[self.cls](self.id).name
 
         return self
 
@@ -110,7 +112,12 @@ class Command:
         :param separate_bytes:  If true, inserts space, which separates bytes.
         :return:                Binary string.
         """
-        cmd_id = '' if self.id == '' else IdToCmdIdValueMap[Id(self.id)]
+        if self.id == '':
+            cmd_id = ''
+        else:
+            idval = ClassToIdMap[self.cls](self.id)
+            cmd_id = ClassValueToIdValueMap[self.cls][idval]
+
         bin_str = self.status_hdr_ind + self.op_code + self.cls + cmd_id + self.status_code + self.raw_payload
         if separate_bytes:
             bin_str = ' '.join(bin_str[i:i + 8] for i in range(0, len(bin_str), 8))
@@ -143,7 +150,7 @@ class Command:
             'status_hdr_indicator': True if self.status_hdr_ind == '1' else False,
             'op-code': OpCode(self.op_code).name,
             'class': Class(self.cls).name,
-            'id': Id(self.id).name,
+            'id': ClassToIdMap[self.cls](self.id).name,
             'status_code': self.status_code,
             'payload': payload,
             'decoded': self.decoded_cmd
