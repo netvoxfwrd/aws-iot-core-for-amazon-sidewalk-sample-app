@@ -1,7 +1,7 @@
 # Copyright 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
 
-import time
+from datetime import datetime, timezone
 
 from typing import final
 
@@ -21,27 +21,38 @@ class CustomData(object):
             UTC time in seconds.
     """
 
-    def __init__(self, wireless_device_id, value: str = '', time: int = 0):
+    def __init__(self, wireless_device_id, value: str = "", time: int = 0):
         self._wireless_device_id = wireless_device_id
-        self._time = time if time != 0 else self._get_gps_time();
-        self._value = hex(int(value, 2))
+        self._value = value
+
+        assert len(self._value) == 24, "Custom data format needs to be changed"
+
+        # Custom data format
+        # 2B (sensor) + 1B (internal temp)
+        self._sensor = int(value[:16], 2)
+        self._temp = int(value[16: 24], 2)
+        time_now = datetime.now(timezone.utc).timestamp()
+        self._time = int(round(time_now * 1000))
 
     def get_wireless_device_id(self) -> str:
         return self._wireless_device_id
 
-    def get_value(self) -> str:
-        return str(self._value)
+    def get_sensor(self) -> str:
+        return str(self._sensor)
+
+    def get_temp(self) -> str:
+        return str(self._temp)
 
     def get_time(self) -> int:
-
         return self._time
 
-    def _get_gps_time(self) -> int:
-        """ 
-        Return gps time
-        """
+    def _bin2hex(self, binary: str):
+        _he = int(binary, 2)
+        _he = hex(_he)[2:]
+        return _he.zfill(len(binary) // 4)
 
-        return int(time.time() - 315964782)
+    def __str__(self):
+        return f"Custom payload-  sensor: {self._sensor}, temp: {self._temp}, time: {self._time}"
 
     def to_dict(self) -> dict:
         """
@@ -50,7 +61,7 @@ class CustomData(object):
         :return:    Dict representation of the Measurement.
         """
         return {
-                'wireless_device_id': self._wireless_device_id,
-                'value': self.get_value(),
-                'time': self.get_time()
-            }
+            "wireless_device_id": self._wireless_device_id,
+            "value": self.get_value(),
+            "time": self.get_time(),
+        }
