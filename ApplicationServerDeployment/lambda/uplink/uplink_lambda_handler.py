@@ -225,10 +225,8 @@ def lambda_handler(event, context):
                     device.get_wireless_device_id()
                 )
 
-            time_now = datetime_now.timestamp()
-            custom_data = CustomData(wireless_device_id=wireless_device_id,
-                                     value=data,
-                                     time=int(round(time_now * 1000)))
+            custom_data = CustomData(wireless_device_id=wireless_device_id)
+            custom_data.get_data_from_string(data)
             custom_data_handler.add_custom_data(custom_data)
 
             return {

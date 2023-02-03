@@ -290,6 +290,7 @@ Resources:
                   - timestream:ExecuteScheduledQuery
                 Resource:
                   - !GetAtt Measurements.Arn
+                  - !GetAtt CustomData.Arn
               - Effect: Allow
                 Action:
                   - timestream:DescribeEndpoints

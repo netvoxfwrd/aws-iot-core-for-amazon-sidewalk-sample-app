@@ -12,10 +12,12 @@ from datetime import datetime, timezone, timedelta
 from typing import Final
 
 from measurements_handler import MeasurementsHandler
+from custom_data_handler import CustomDataHandler
 from sidewalk_devices_handler import SidewalkDevicesHandler
 
 device_handler: Final = SidewalkDevicesHandler()
 measurement_handler: Final = MeasurementsHandler()
+custom_data_handler: Final = CustomDataHandler()
 
 
 def get_all_devices():
@@ -78,6 +80,27 @@ def lambda_handler(event, context):
 
             elif path == "/measurements":
                 return _create_response_message(400, "Invalid path. Correct path format /measurements/{wirelessDeviceId}")
+            elif path.startswith("/data/"):  # get device request format devices/{deviceId}
+                # you can also optionally specify range: devices/{deviceId}/dateStart/dateEnd
+                split_path = path.split("/data/", 1)
+                if len(split_path) == 1:
+                    return _create_response_message(400, "Invalid path. Device id needs to be specified. Example of correct "
+                                                         "path /data/{wirelessDeviceId}")
+                remaining_path = split_path[1].split("/", 1)
+                wireless_device_id = remaining_path[0]
+                time_end = datetime.now(timezone.utc)
+                time_start = time_end - timedelta(hours=1)
+
+                measurements = custom_data_handler.get_custom_data(wireless_device_id=wireless_device_id,
+                                                                    time_range_start=time_start.timestamp(),
+                                                                    time_range_end=time_end.timestamp())
+                measurements_json = []
+                for measurement in measurements:
+                    measurements_json.append(measurement.to_dict())
+                return _create_response_message(200, measurements_json)
+
+            elif path == "/data":
+                return _create_response_message(400, "Invalid path. Correct path format /data/{wirelessDeviceId}")
             else:
                 return _create_response_message(400, "Invalid path. Endpoint {} is not supported".format(path))
 
