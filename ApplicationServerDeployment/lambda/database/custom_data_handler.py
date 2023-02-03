@@ -41,7 +41,7 @@ class CustomDataHandler:
                                 "Value": custom_data.get_wireless_device_id(),
                             }
                         ],
-                        "MeasureName": "custom_data_sensor",
+                        "MeasureName": "custom_data",
                         "MeasureValue": str(custom_data.get_value()),
                         "MeasureValueType": "VARCHAR",
                     },
