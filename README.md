@@ -19,12 +19,21 @@ If you are not sure whether you have coverage, we recommend you turn on an opera
 |---|
 
 ## Prerequisites
-- Downloand and install Python 3.6 or above (https://www.python.org/)
+- Download and install Python 3.6 or above (https://www.python.org/)
 - Create an AWS account (https://aws.amazon.com/)
-- Set up an AWS user using the AWS IAM service ([Creating IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console)) with:
-  - authentication credentials configured ([Managing access keys -> To create an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey))
-  - permissions to create resources (details are provided in [Deploy cloud infrastructure](#3.-Deploy-cloud-infrastructure) section)
-- *credentials* file configured on your local machine ([Boto3 -> QuickStart -> Configuration](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration))
+- Set up an AWS user and its credentials:
+  - create user in AWS IAM service ([Creating IAM user](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console))
+  - configure user's authentication credentials ([Managing access keys -> To create an access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey))
+  - configure *credentials* file on your local machine ([Boto3 -> QuickStart -> Configuration](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration))
+  - add user permissions to create resources:
+    - if your user has Admin permissions, prerequisite is already satisfied, you can skip this point
+    - otherwise you need to assign your user a policy with proper permissions:
+      - run `python ApplicationServerDeployment/policies/generate_policy.py` script, which will generate personalized policy documents in *ApplicationServerDeployment/policies/* directory 
+      - go to the IAM console, create the policy using *DeployStackPolicy.json* content
+      - assign created policy to your user
+        
+      Refer to the [IAM tutorial: Create and attach your first customer managed policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_managed-policies.html) for further guidance.
+
 - Install MCU-specific tools for building and flashing:
   - Nordic
     - Flashing Drivers: *Segger JLink* (https://www.segger.com/downloads/jlink/)
@@ -36,8 +45,13 @@ If you are not sure whether you have coverage, we recommend you turn on an opera
     - Flashing Tool: *Simplicity Commander* (https://community.silabs.com/s/article/simplicity-commander)
 
 
-Make sure *Simplicity Commander* (for SiLabs) are present in your system PATH environment variable.
+Make sure *Simplicity Commander* (for SiLabs) are present in your system PATH environment variable.  
 --> Try calling *commander --version* in the terminal to make sure the Simplicity Commander is available
+
+You may want to run a helper *env_check.py* script to sanity check your environment against the most common errors.
+```
+python3 env_check.py
+```
 
 ## Getting Started
 
@@ -54,7 +68,7 @@ python3 -m pip install --user virtualenv
 python3 -m venv sample-app-env
 source sample-app-env/bin/activate
 python3 -m pip install --upgrade pip
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 - Windows:
@@ -63,7 +77,7 @@ python -m pip install --user virtualenv
 python -m venv sample-app-env
 sample-app-env\Scripts\activate.bat
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 2. Fill out configuration file
@@ -76,19 +90,12 @@ Fill out [config](./config.yaml) file with your details (or leave default values
 
 ### 3. Deploy cloud infrastructure
 
-For the sample application to work, you need to deploy necessary resources to your AWS account.
+For the sample application to work, you need to deploy necessary resources to your AWS account.  
+**Before running the script, ensure that you have sufficient permissions to create resources 
+(see: [Prerequisites](#Prerequisites))**.
 
 |All the resources need to be created in *us-east-1* region. If *config* file specifies another region, it will be ignored.
 |---|
-
-**Before running the script, ensure that you have sufficient permissions to create resources listed in [SidewalkSampleApplicationStack.yaml](./ApplicationServerDeployment/template/SidewalkSampleApplicationStack.yaml)**
-You can reuse [DeployStackPolicy.json](./ApplicationServerDeployment/template/DeployStackPolicy.json) template to create a policy document, which then can be assigned to the user associated with the *AWS_PROFILE*. It provides all the permissions needed to create the *SidewalkSampleApplicationStack*.
-In order to do so:
-- open *DeployStackPolicy.json*, replace all the occurrences of *<account_ID>* with your AWS Account ID
-- go to the IAM console, create the policy using *DeployStackPolicy.json* content
-- assign created policy to the user associated with your *AWS_PROFILE*
-
-Refer to the [IAM tutorial: Create and attach your first customer managed policy](https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_managed-policies.html) for further guidance.
 
 |WARNING: You will be billed for the usage of AWS resources created by this application. |
 |---|
@@ -241,16 +248,15 @@ In order to deploy the application, run the *ApplicationServerDeployment/deploy_
 - creates CloudFormation stack
 - configures settings, which cannot be set via CloudFormation
 
-Before running the script, ensure that you have sufficient permissions to create resources listed in [SidewalkSampleApplicationStack.yaml](./ApplicationServerDeployment/template/SidewalkSampleApplicationStack.yaml)
-You can reuse following policy document (replace *<account_ID>* with your AWS Account ID): [DeployStackPolicy.json](./ApplicationServerDeployment/template/DeployStackPolicy.json)
-
-```
-python3 ApplicationServerDeployment/deploy_stack.py
-```
+**Before running the script, ensure that you have sufficient permissions to create resources 
+(see: [Prerequisites](#Prerequisites))**.
 
 |WARNING: You will be billed for the usage of AWS resources created by this application.|
 |---|
 
+```
+python3 ApplicationServerDeployment/deploy_stack.py
+```
 
 In order to delete all the resources created by the application, run:
 ```

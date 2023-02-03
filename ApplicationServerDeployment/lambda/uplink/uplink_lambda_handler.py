@@ -14,6 +14,7 @@ from typing import Final
 
 import time_utils
 from command import Command
+from custom_data import CustomData
 from device import Device
 from measurement import Measurement
 
@@ -22,10 +23,15 @@ DEMO_APP_CAP_DISCOVERY_NOTIFICATION: Final = "DEMO_APP_CAP_DISCOVERY_NOTIFICATIO
 DEMO_APP_ACTION_RESP: Final = "DEMO_APP_ACTION_RESP"
 DEMO_APP_ACTION_REQ: Final = "DEMO_APP_ACTION_REQ"
 DEMO_APP_ACTION_NOTIFICATION: Final = "DEMO_APP_ACTION_NOTIFICATION"
+DEMO_APP_CUSTOM_DATA_RESP: Final = "DEMO_APP_CUSTOM_DATA_RESP"
+DEMO_APP_CUSTOM_DATA_REQ: Final = "DEMO_APP_CUSTOM_DATA_REQ"
+DEMO_APP_CUSTOM_DATA_NOTIFICATION: Final = "DEMO_APP_CUSTOM_DATA_NOTIFICATION"
 
+from custom_data_handler import CustomDataHandler
 from measurements_handler import MeasurementsHandler
 from sidewalk_devices_handler import SidewalkDevicesHandler
 
+custom_data_handler: Final = CustomDataHandler()
 device_handler: Final = SidewalkDevicesHandler()
 measurement_handler: Final = MeasurementsHandler()
 
@@ -208,6 +214,26 @@ def lambda_handler(event, context):
             return {
                 'statusCode': 200,
                 'body': json.dumps('Hello from DEMO_APP_ACTION_NOTIFICATION!')
+            }
+
+        elif command == DEMO_APP_CUSTOM_DATA_REQ or command == DEMO_APP_CUSTOM_DATA_NOTIFICATION:
+
+            if "custom_data" in decoded_payload:
+                data = decoded_payload["custom_data"]
+                device = Device(wireless_device_id)
+                device_handler.update_last_uplink(
+                    device.get_wireless_device_id()
+                )
+
+            time_now = datetime_now.timestamp()
+            custom_data = CustomData(wireless_device_id=wireless_device_id,
+                                     value=data,
+                                     time=int(round(time_now * 1000)))
+            custom_data_handler.add_custom_data(custom_data)
+
+            return {
+                'statusCode': 200,
+                'body': json.dumps(f'Hello from {command}!')
             }
 
         else:

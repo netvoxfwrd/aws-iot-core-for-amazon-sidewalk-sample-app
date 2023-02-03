@@ -87,6 +87,19 @@ Resources:
         MemoryStoreRetentionPeriodInHours: 12
         MagneticStoreRetentionPeriodInDays: 7
 
+  # Table for storing data from "custom data" command
+  CustomData:
+    Type: AWS::Timestream::Table
+    DependsOn: SidewalkTimestream
+    Properties:
+      TableName: CustomData
+      DatabaseName: SidewalkTimestream
+      MagneticStoreWriteProperties:
+        EnableMagneticStoreWrites: false
+      RetentionProperties:
+        MemoryStoreRetentionPeriodInHours: 12
+        MagneticStoreRetentionPeriodInDays: 7
+
   # ---------------------------
   # DynamoDb related resources
   # ---------------------------
@@ -121,6 +134,7 @@ Resources:
       - SidewalkDownlinkLambda
       - SidewalkDevices
       - Measurements
+      - CustomData
     Properties:
       RoleName: SidewalkUplinkLambdaExecutionRole
       Description: Allows SidewalkUplinkLambda to call AWS services on your behalf.
@@ -178,6 +192,7 @@ Resources:
                     - timestream:UpdateScheduledQuery
                 Resource:
                     - !GetAtt Measurements.Arn
+                    - !GetAtt CustomData.Arn
               - Effect: Allow
                 Action:
                     - timestream:DescribeEndpoints
