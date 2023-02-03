@@ -42,21 +42,8 @@ class CustomDataHandler:
                             }
                         ],
                         "MeasureName": "custom_data_sensor",
-                        "MeasureValue": str(custom_data.get_sensor()),
-                        "MeasureValueType": "DOUBLE",
-                    },
-                    {
-                        "Time": str(custom_data.get_time()),
-                        "TimeUnit": "MILLISECONDS",
-                        "Dimensions": [
-                            {
-                                "Name": "wireless_device_id",
-                                "Value": custom_data.get_wireless_device_id(),
-                            }
-                        ],
-                        "MeasureName": "custom_data_temp",
-                        "MeasureValue": str(custom_data.get_temp()),
-                        "MeasureValueType": "DOUBLE",
+                        "MeasureValue": str(custom_data.get_value()),
+                        "MeasureValueType": "VARCHAR",
                     },
                 ],
             )

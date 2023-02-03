@@ -23,25 +23,15 @@ class CustomData(object):
 
     def __init__(self, wireless_device_id, value: str = "", time: int = 0):
         self._wireless_device_id = wireless_device_id
-        self._value = value
-
-        assert len(self._value) == 24, "Custom data format needs to be changed"
-
-        # Custom data format
-        # 2B (sensor) + 1B (internal temp)
-        self._sensor = int(value[:16], 2)
-        self._temp = int(value[16: 24], 2)
+        self._value = self._bin2hex(value)
         time_now = datetime.now(timezone.utc).timestamp()
         self._time = int(round(time_now * 1000))
 
     def get_wireless_device_id(self) -> str:
         return self._wireless_device_id
 
-    def get_sensor(self) -> str:
-        return str(self._sensor)
-
-    def get_temp(self) -> str:
-        return str(self._temp)
+    def get_value(self) -> str:
+        return str(self._value)
 
     def get_time(self) -> int:
         return self._time
@@ -52,7 +42,7 @@ class CustomData(object):
         return _he.zfill(len(binary) // 4)
 
     def __str__(self):
-        return f"Custom payload-  sensor: {self._sensor}, temp: {self._temp}, time: {self._time}"
+        return f"Custom payload-  Value: {self._value}, time: {self._time}"
 
     def to_dict(self) -> dict:
         """
